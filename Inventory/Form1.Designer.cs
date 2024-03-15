@@ -41,12 +41,13 @@
             this.mainPanel.Name = "mainPanel";
             this.mainPanel.Size = new System.Drawing.Size(776, 364);
             this.mainPanel.TabIndex = 0;
+            this.mainPanel.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.mP_MouseW);
             // 
             // mainPictureBox
             // 
-            this.mainPictureBox.Location = new System.Drawing.Point(3, 3);
+            this.mainPictureBox.Location = new System.Drawing.Point(0, 0);
             this.mainPictureBox.Name = "mainPictureBox";
-            this.mainPictureBox.Size = new System.Drawing.Size(100, 50);
+            this.mainPictureBox.Size = new System.Drawing.Size(773, 361);
             this.mainPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.mainPictureBox.TabIndex = 0;
             this.mainPictureBox.TabStop = false;
