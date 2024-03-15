@@ -16,28 +16,28 @@ namespace Inventory
     {
         private bool mouseDown; //Azért kell hogy le tudjuk menteni és vizsgálni, hogy a pictureBoxon belül nyomtuk le az egér gombot
         private bool mouseMove; //Azért kell hogy le tudjuk menteni és vizsgálni, hogy a pictureBoxon belül mozgattuk az egeret
-        private Point lastLocation; // Azért kell hogy le tudjuk menteni és vizsgálni, hogy hol nyomtuk le az egeret a pictureboxon belül
+        private Point lastLocation; // Azért kell hogy le tudjuk menteni és vizsgálni, hogy hol nyomtuk le az egeret a pictureboxon belül, kép mozgatásához 
         private Point circleCenter; // A kör középpontjának koordinátái, amit későbbiekben összevetünk a lactLocation-el(elmentett koordináttákal)
-        private List<Point> circleCenters = new List<Point>(); // A korábban létrehozott körök középpontjainak listája
-        private ContextMenuStrip contextMenuStrip1; // A kis menü ablak(még kérdéses a beépítés)
+        private List<Point> circleCenters = new List<Point>(); // A korábban létrehozott körök száma és azoknak a koordinátája 
         private Point? movingCircleCenter = null; // A mozgatott kör középpontja (null, ha éppen nem mozgatunk kört)
-
+        
         // Kör méretezéséhez használt segédek 
         private const int initialRadius = 10; // Kezdeti rádiusz érték
         private int radius = initialRadius; // Jelenlegi rádiusz, amit skálázunk
 
-        private int movingCircleIndex = -1; // Új változó a mozgatott kör indexének tárolására
+        //"animálási segédlet"
+        private int circleFoundI = -1; // Új változó a mozgatott kör indexének tárolására, lehetővé teszi nekünk a "minimális animálást", azért -1 a kezdőérték mert az indexelést jelen esetben 0val kezdem így előfurdúlhat, hogy elkapnám a 0-értéket
 
-
+        //private ContextMenuStrip contextMenuStrip1; // A kis menü ablak(még kérdéses a beépítés)
         public MainForm()
         {
             InitializeComponent();
             LoadCoords(); // Koordináták betöltése
 
             // ContextMenuStrip létrehozása abban az esetben ha a törlés meg létrehozást külön jobb clickre akarnám tenni.
-            contextMenuStrip1 = new ContextMenuStrip();
-            contextMenuStrip1.Items.Add("Hozzáadás", null, AddCircle_Click);
-            mainPictureBox.ContextMenuStrip = contextMenuStrip1;
+            //contextMenuStrip1 = new ContextMenuStrip();
+            //contextMenuStrip1.Items.Add("Hozzáadás", null, AddCircle_Click);
+            //mainPictureBox.ContextMenuStrip = contextMenuStrip1;
         }
         private void MainForm_Load(object sender, EventArgs e) // későbbiekben egy halom mssql kódsor lesz itt 
         {
@@ -63,15 +63,16 @@ namespace Inventory
         }
         private void mPB_MouseD(object sender, MouseEventArgs e) // pictureBox-on belüli egér lenyomás vizsgálata
         {
-            mouseDown = true;
-            lastLocation = e.Location;
+            mouseDown = true; //mivel lenyomtuk a gombot így ez igaz lesz 
+            lastLocation = e.Location; //kattintási koordináta lementése későbbre
             Point imageCoords = ConvertScreenCoordsToImageCoords(e.Location);
 
+            //végig megyünk a körök adatbázisán és vizsgáljuk, hogy belekattintottunk-e egybe vagy sem illetve elmentjük, hogy melyik körbe kattintottunk bele
             for (int i = 0; i < circleCenters.Count; i++)
             {
                 if (IsPointInsideCircle(circleCenters[i], imageCoords))
                 {
-                    movingCircleIndex = i;
+                    circleFoundI = i;
                     movingCircleCenter = circleCenters[i];
                     break;
                 }
@@ -80,31 +81,22 @@ namespace Inventory
 
         private void mPB_MouseM(object sender, MouseEventArgs e) //képen belül mozgattuk-e az egeret
         {
-            if (movingCircleIndex != -1 && movingCircleCenter.HasValue)
-            {
-                Point imageCoords = ConvertScreenCoordsToImageCoords(e.Location);
-                circleCenters[movingCircleIndex] = new Point(movingCircleCenter.Value.X + (imageCoords.X - movingCircleCenter.Value.X), movingCircleCenter.Value.Y + (imageCoords.Y - movingCircleCenter.Value.Y));
+            Point imageCoords = ConvertScreenCoordsToImageCoords(e.Location); // Átszámított kép koordináták
+
+            if (circleFoundI != -1 && mouseDown) //körre kattintás vizsgálata ha igen áthelyezzük a kört 
+            {               
+                circleCenters[circleFoundI] = new Point(movingCircleCenter.Value.X + (imageCoords.X - movingCircleCenter.Value.X), movingCircleCenter.Value.Y + (imageCoords.Y - movingCircleCenter.Value.Y));
                 mainPictureBox.Invalidate();
-                mouseMove = true;
+                mouseMove = true;//vizsgáljuk a mozgást
             }
-            if (mouseDown && movingCircleIndex != -1) //itt jön elő az, hogy miért kellett a mouseDown felvétel ugyan is ha ez nem lenne itt akkor nem egér lenyomásnál mozgatnánk a dolgokat hanem azonnal amint az egér beleér
-            {
-                // Mozgatjuk a kört az egér új helyzetébe
-                Point imageCoords = ConvertScreenCoordsToImageCoords(e.Location); // Átszámított kép koordináták
-                movingCircleCenter = new Point(imageCoords.X, imageCoords.Y); //az új koordinátáit itt adjuk meg a körnek
-                mainPictureBox.Invalidate(); // Animációért lenne felelős de a form.app nem képes teljesen lekezelni ezt így akkor is működik az kör áthelyezése ha nem lenne itt ez, a különbség annyi hogy ha ki vesszük akkor a kör marad egész addig amíg át nem helyezzük az új helyére
-                mouseMove = true; //itt jön elő az, hogy miért kellett a mouseMove ugyan is, ha nem lenne nem tudnánk vizsgálni, hogy mozgattunk-e valamit a képen belül
-            }
-            else if (mouseDown)
+            else if (mouseDown && circleFoundI <= 0)
             {
                 mouseMove = true; //mivel mind a 2 esetben mozgatunk így kell ide is de itt jelen esetben nem a kört mozgatjuk hanem a képet a panelem belül
                 int newX = mainPictureBox.Left + (e.X - lastLocation.X);
                 int newY = mainPictureBox.Top + (e.Y - lastLocation.Y);
                 
-                //itt állítjuk be hogy a panelhez csatol picture box hol legyenek a panelen belül
-
-                // Korlátok beállítása a PictureBox mozgatásához
-                // Gondoskodni kell arról, hogy a PictureBox soha ne hagyja el a Panel területét
+                //panelen belüli helyzet beállítása és korlátozása a pictureboxnak
+                // ne lépjen ki a panel területéről:
                 int maxRight = mainPanel.Width - mainPictureBox.Width;
                 int maxBottom = mainPanel.Height - mainPictureBox.Height;
 
@@ -114,7 +106,7 @@ namespace Inventory
                 if (newX < maxRight) newX = maxRight; // Ne hagyja el a panel jobb oldalát
                 if (newY < maxBottom) newY = maxBottom; // Ne hagyja el a panel alját
 
-                // Alkalmazzuk az új pozíciót, amely már figyelembe veszi a korlátokat
+                // Az új pozíció korlátokon belül
                 mainPictureBox.Left = newX;
                 mainPictureBox.Top = newY;
             }
@@ -124,10 +116,10 @@ namespace Inventory
             bool newCircle = false;// annak az ellenőrzése, hogy vettünk már fel új kört és ha igen akkor ne kérdezzen rá egyből az újonnan felvett kör törlésére
 
             Point imageCoords = ConvertScreenCoordsToImageCoords(e.Location);
-            if (movingCircleIndex != -1)
+            if (circleFoundI != -1)
             {
                 SaveCoords(); // Módosítások mentése
-                movingCircleIndex = -1;
+                circleFoundI = -1;
                 movingCircleCenter = null;
             }
             else if (movingCircleCenter.HasValue)
@@ -143,9 +135,8 @@ namespace Inventory
                 DialogResult dialogResult = MessageBox.Show("Fel akarja-e venni a helyszínt", "Felvétel", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    movingCircleCenter = e.Location; // Kattintás helye a kör középpontja
                     circleCenters.Add(imageCoords); // Kör középpontjának hozzáadása a listához
-                    newCircle = true;
+                    newCircle = true;                   
                 }
             }
             if (!newCircle && !mouseMove)
@@ -166,7 +157,7 @@ namespace Inventory
                     }
                 }
             }
-            //ezek azért kellenek, hogy vissza álíltsuk az alapértelmezett beállításokat 
+            //alapértelmezett beállítások visszaállítása 
             mouseDown = false;
             mouseMove = false;
             
@@ -174,33 +165,35 @@ namespace Inventory
             SaveCoords(); // Koordináták mentése
         }
 
-        private void mP_MouseW(object sender, MouseEventArgs e)
+        private void mP_MouseW(object sender, MouseEventArgs e) //zoom-in & -out-hoz és körök méretezéséhez szükséges 
         {
             const float zoomFactor = 1.1f; // Zoom mértékének beállítása
 
-            if (mainPictureBox.SizeMode != PictureBoxSizeMode.Zoom)
+            if (mainPictureBox.SizeMode != PictureBoxSizeMode.Zoom) //kép alap beállítása auto-size aminek csak kényelmi okai vannak, de mivel azzal nem tudjuk megoldani a zoom parancsot ezért át kell állítani .Zoom-ra
             {
                 mainPictureBox.SizeMode = PictureBoxSizeMode.Zoom;
                 mainPictureBox.Width = mainPictureBox.Image.Width;
                 mainPictureBox.Height = mainPictureBox.Image.Height;
             }
 
+
             // Számítsuk ki az új méreteket előre, hogy ellenőrizhessük őket
             int newWidth = (e.Delta > 0) ? (int)(mainPictureBox.Width * zoomFactor) : (int)(mainPictureBox.Width / zoomFactor);
             int newHeight = (e.Delta > 0) ? (int)(mainPictureBox.Height * zoomFactor) : (int)(mainPictureBox.Height / zoomFactor);
 
             // Ellenőrizzük, hogy a zoomolás után a méret nem lépi-e túl a megengedett maximumot
-            if (newWidth > 1500 || newHeight > 1500)
+            if (newWidth > 1500 || newHeight > 1500) //általam megadott érték az alap képnél szépen néz ki több kép esetében tesztelés szükséges 
             {
                 // Ha a kiszámított új méret túllépné a maximális zoom méretet, nem végezzük el a zoomolást
                 return;
             }
 
             // Ellenőrizzük, hogy az új méretek nem kisebbek-e, mint a Panel méretei
-            if ((e.Delta < 0 && mainPictureBox.Width > mainPanel.Width) || e.Delta > 0)
+            if ((e.Delta < 0 && mainPictureBox.Width > mainPanel.Width) || e.Delta > 0) //ez is kényelmi funkció hogy ne legyen túl kicsi
             {
                 mainPictureBox.Width = newWidth;
                 mainPictureBox.Height = newHeight;
+
             }
 
             mainPictureBox.Left = 0;
@@ -245,13 +238,13 @@ namespace Inventory
                 circleCenters = lines.Select(line => line.Split(',')).Where(parts => parts.Length == 2 && int.TryParse(parts[0], out int x) && int.TryParse(parts[1], out int y)).Select(parts => new Point(int.Parse(parts[0]), int.Parse(parts[1]))).ToList();
             }
         }
-        private void AddCircle_Click(object sender, EventArgs e)
-        {
-            // Kör hozzáadása
-            circleCenters.Add(circleCenter);
-            mainPictureBox.Invalidate();
-            SaveCoords();
-        }
+        //private void AddCircle_Click(object sender, EventArgs e)
+        //{
+        //    // Kör hozzáadása
+        //    circleCenters.Add(circleCenter);
+        //    mainPictureBox.Invalidate();
+        //    SaveCoords();
+        //}
         private Point ConvertScreenCoordsToImageCoords(Point screenCoords)
         {
             float scaleX = (float)mainPictureBox.Image.Width / mainPictureBox.Width;
