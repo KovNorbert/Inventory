@@ -25,7 +25,7 @@ namespace Inventory
         private const int initialRadius = 10; // Kezdeti rádiusz érték
         private int radius = initialRadius; // Jelenlegi rádiusz, amit skálázunk
 
-        //"animálási segédlet"
+        //"animálási segédlet" + később sql hozzáadásánál segédlet a pontok és adatok egyesítéséhez 
         private int circleFoundI = -1; // Új változó a mozgatott kör indexének tárolására, lehetővé teszi nekünk a "minimális animálást", azért -1 a kezdőérték mert az indexelést jelen esetben 0val kezdem így előfurdúlhat, hogy elkapnám a 0-értéket
 
         //private ContextMenuStrip contextMenuStrip1; // A kis menü ablak(még kérdéses a beépítés)
@@ -34,7 +34,7 @@ namespace Inventory
             InitializeComponent();
             LoadCoords(); // Koordináták betöltése
 
-            // ContextMenuStrip létrehozása abban az esetben ha a törlés meg létrehozást külön jobb clickre akarnám tenni.
+            // //ContextMenuStrip létrehozása abban az esetben ha a törlés meg létrehozást külön jobb clickre akarnám tenni.
             //contextMenuStrip1 = new ContextMenuStrip();
             //contextMenuStrip1.Items.Add("Hozzáadás", null, AddCircle_Click);
             //mainPictureBox.ContextMenuStrip = contextMenuStrip1;
@@ -59,7 +59,6 @@ namespace Inventory
             {
                 MessageBox.Show("A kép nem található az adott elérési úton!");
             }
-
         }
         private void mPB_MouseD(object sender, MouseEventArgs e) // pictureBox-on belüli egér lenyomás vizsgálata
         {
@@ -159,8 +158,7 @@ namespace Inventory
             }
             //alapértelmezett beállítások visszaállítása 
             mouseDown = false;
-            mouseMove = false;
-            
+            mouseMove = false;            
             mainPictureBox.Invalidate(); // PictureBox újrarajzolása(dinamikus változásért)
             SaveCoords(); // Koordináták mentése
         }
@@ -168,26 +166,21 @@ namespace Inventory
         private void mP_MouseW(object sender, MouseEventArgs e) //zoom-in & -out-hoz és körök méretezéséhez szükséges 
         {
             const float zoomFactor = 1.1f; // Zoom mértékének beállítása
-
             if (mainPictureBox.SizeMode != PictureBoxSizeMode.Zoom) //kép alap beállítása auto-size aminek csak kényelmi okai vannak, de mivel azzal nem tudjuk megoldani a zoom parancsot ezért át kell állítani .Zoom-ra
             {
                 mainPictureBox.SizeMode = PictureBoxSizeMode.Zoom;
                 mainPictureBox.Width = mainPictureBox.Image.Width;
                 mainPictureBox.Height = mainPictureBox.Image.Height;
             }
-
-
             // Számítsuk ki az új méreteket előre, hogy ellenőrizhessük őket
             int newWidth = (e.Delta > 0) ? (int)(mainPictureBox.Width * zoomFactor) : (int)(mainPictureBox.Width / zoomFactor);
             int newHeight = (e.Delta > 0) ? (int)(mainPictureBox.Height * zoomFactor) : (int)(mainPictureBox.Height / zoomFactor);
-
             // Ellenőrizzük, hogy a zoomolás után a méret nem lépi-e túl a megengedett maximumot
             if (newWidth > 1500 || newHeight > 1500) //általam megadott érték az alap képnél szépen néz ki több kép esetében tesztelés szükséges 
             {
                 // Ha a kiszámított új méret túllépné a maximális zoom méretet, nem végezzük el a zoomolást
                 return;
             }
-
             // Ellenőrizzük, hogy az új méretek nem kisebbek-e, mint a Panel méretei
             if ((e.Delta < 0 && mainPictureBox.Width > mainPanel.Width) || e.Delta > 0) //ez is kényelmi funkció hogy ne legyen túl kicsi
             {
@@ -195,15 +188,12 @@ namespace Inventory
                 mainPictureBox.Height = newHeight;
 
             }
-
             mainPictureBox.Left = 0;
             mainPictureBox.Top = 0;
             mainPictureBox.Invalidate(); // Az újrarajzolás engedélyezése
         }
-
         private bool IsPointInsideCircle(Point circleCenter, Point point) => //körök koordinátáinak ellemzése, hogy megjelenített körön belül kattintottunk-e
             Math.Sqrt((circleCenter.X - point.X) * (circleCenter.X - point.X) + (circleCenter.Y - point.Y) * (circleCenter.Y - point.Y)) <= radius;
-
         private void mPB_paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
@@ -223,12 +213,8 @@ namespace Inventory
                 g.FillEllipse(Brushes.Red, scaledX - scaledRadius, scaledY - scaledRadius, 2 * scaledRadius, 2 * scaledRadius);
             }
         }
-
         private void SaveCoords() =>  //körök koordinátáinak lementése későbbiekben mssql-ben
             File.WriteAllLines("coordinates.csv", circleCenters.Select(center => $"{center.X},{center.Y}"));
-
-
-
         private void LoadCoords()
         {
             var filePath = "coordinates.csv"; // későbbiekben mssql-ből
@@ -255,7 +241,6 @@ namespace Inventory
 
             return new Point(x, y);
         }
-
         private Point ConvertImageCoordsToScreenCoords(Point imageCoords)
         {
             // Az eredeti kép koordinátáit a PictureBox százalékos pozíciójába konvertáljuk

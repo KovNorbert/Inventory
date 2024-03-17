@@ -37,9 +37,10 @@
             // mainPanel
             // 
             this.mainPanel.Controls.Add(this.mainPictureBox);
-            this.mainPanel.Location = new System.Drawing.Point(12, 74);
+            this.mainPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mainPanel.Location = new System.Drawing.Point(0, 0);
             this.mainPanel.Name = "mainPanel";
-            this.mainPanel.Size = new System.Drawing.Size(776, 364);
+            this.mainPanel.Size = new System.Drawing.Size(908, 563);
             this.mainPanel.TabIndex = 0;
             this.mainPanel.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.mP_MouseW);
             // 
@@ -60,7 +61,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(908, 563);
             this.Controls.Add(this.mainPanel);
             this.Name = "MainForm";
             this.Text = "Form1";
