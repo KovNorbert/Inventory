@@ -14,13 +14,12 @@ namespace Inventory
     public partial class ToolSelectionForm : Form
     {
         public int SelectedToolWorkId { get; private set; } = -1;
-        private string connectionString = @"Server=KONO-PC; Database=Inventory; Integrated Security=True;";
+        string connectionString = $"Server={Properties.Settings.Default.ServerName}; Database=Inventory; Integrated Security=True;";
         public ToolSelectionForm()
         {
             InitializeComponent();
             LoadToolsWithoutLocation();
         }
-
         private void LoadToolsWithoutLocation()
         {
             // Adatbázisból lekérdezzük azokat a Tool-okat, amelyekhez még nincs ToolLocation hozzárendelve

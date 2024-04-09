@@ -7,7 +7,7 @@ namespace Inventory
 {
     public partial class AssignToolForm : Form
     {
-        private string connectionString = @"Server=KONO-PC; Database=Inventory; Integrated Security=True;";
+        string connectionString = $"Server={Properties.Settings.Default.ServerName}; Database=Inventory; Integrated Security=True;";
 
         public AssignToolForm()
         {

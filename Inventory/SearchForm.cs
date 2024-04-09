@@ -10,7 +10,7 @@ namespace Inventory
 {
     public partial class SearchForm : Form
     {                
-        private string connectionString = @"Server=KONO-PC; Database=Inventory; Integrated Security=True;";
+        string connectionString = $"Server={Properties.Settings.Default.ServerName}; Database=Inventory; Integrated Security=True;";
         private int currentColumnIndex = -1; // Globális változó az oszlop indexének tárolására
         
         private int selectedId = -1;

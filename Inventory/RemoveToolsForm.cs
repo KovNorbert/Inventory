@@ -7,7 +7,8 @@ namespace Inventory
 {
     public partial class RemoveToolsForm : Form
     {
-        private string connectionString = @"Server=KONO-PC; Database=Inventory; Integrated Security=True;";
+        //string connectionString = $"Server={Properties.Settings.Default.ServerName}; Database=Inventory; Integrated Security=True;";
+        string connectionString = $"Server={Properties.Settings.Default.ServerName}; Database=Inventory; Integrated Security=True;";
 
         public RemoveToolsForm()
         {

@@ -48,7 +48,7 @@ namespace Inventory
                 }
 
                 // SQL kapcsolat string. Itt a Windows hitelesítést használjuk
-                string connectionString = @"Data Source=KONO-PC;Initial Catalog=Inventory;Integrated Security=True;";
+                string connectionString = $"Server={Properties.Settings.Default.ServerName}; Database=Inventory; Integrated Security=True;";
 
                 // Kép feltöltése az adatbázisba
                 using (SqlConnection conn = new SqlConnection(connectionString))

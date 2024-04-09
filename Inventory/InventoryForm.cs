@@ -26,12 +26,13 @@ namespace Inventory
         private int circleFoundI = -1; // Új változó a mozgatott kör indexének tárolására, lehetővé teszi nekünk a "minimális animálást", azért -1 a kezdőérték mert az indexelést jelen esetben 0val kezdem így előfurdúlhat, hogy elkapnám a 0-értéket
         private Point originalImageCoords;
 
+
         //--
         //SQL
-        private string connectionString = @"Server=KONO-PC; Database=Inventory; Integrated Security=True;";
+        string connectionString = $"Server={Properties.Settings.Default.ServerName}; Database=Inventory; Integrated Security=True;";
 
         //képbetöltés
-        ImgLoader Loader = new ImgLoader(@"Server=KONO-PC; Database=Inventory; Integrated Security=True;");
+        ImgLoader Loader = new ImgLoader($"Server={Properties.Settings.Default.ServerName}; Database=Inventory; Integrated Security=True;");
         //---------------------------------------------------------------------------------------------------------------------------------------
         Point pointForSave = new Point();
 
@@ -39,10 +40,11 @@ namespace Inventory
         public MainForm()
         {
             InitializeComponent();
+            this.FormClosing += new FormClosingEventHandler(MyForm_FormClosing);
         }
         private void MainForm_Load(object sender, EventArgs e) // későbbiekben egy halom mssql kódsor lesz itt 
         {
-            string connectionString = @"Data Source=KONO-PC;Initial Catalog=Inventory;Integrated Security=True;";
+           
             string query = "SELECT MapName FROM Map";
 
             using (SqlConnection conn = new SqlConnection(connectionString))
@@ -660,6 +662,25 @@ namespace Inventory
         {
             RemoveToolsForm removeToolsForm = new RemoveToolsForm();
             removeToolsForm.Show();
+        }
+
+        private void MyForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // X gomb megnyomása
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                // Megerősítés kérése a felhasználótól
+                if (MessageBox.Show("Biztosan bezárja az alkalmazást?", "Megerősítés", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    // Az egész alkalmazás bezárása
+                    Application.Exit();
+                }
+                else
+                {
+                    // Megszakítjuk a bezárás folyamatát
+                    e.Cancel = true;
+                }
+            }
         }
     }
 }

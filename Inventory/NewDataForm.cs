@@ -18,7 +18,7 @@ namespace Inventory
         AddPerson addPerson = new AddPerson();
         AddTool addTool = new AddTool();
         public int addWhat = -1;
-        private string connectionString = @"Server=KONO-PC; Database=Inventory; Integrated Security=True;";
+        string connectionString = $"Server={Properties.Settings.Default.ServerName}; Database=Inventory; Integrated Security=True;";
         private int selectedId = -1;
         public bool isMody = false;
         public NewDataForm()

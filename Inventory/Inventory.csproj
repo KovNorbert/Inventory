@@ -60,6 +60,16 @@
     <Compile Include="AssignToolForm.Designer.cs">
       <DependentUpon>AssignToolForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="InventoryDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>InventoryDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="InventoryDataSet1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>InventoryDataSet1.xsd</DependentUpon>
+    </Compile>
     <Compile Include="RemoveToolsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -102,6 +112,12 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Person.cs" />
+    <Compile Include="SqlConnectForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SqlConnectForm.Designer.cs">
+      <DependentUpon>SqlConnectForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Tool.cs" />
     <Compile Include="ToolLocation.cs" />
     <Compile Include="ToolSelectionForm.cs">
@@ -112,6 +128,7 @@
     </Compile>
     <EmbeddedResource Include="AboutForm.resx">
       <DependentUpon>AboutForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="AssignToolForm.resx">
       <DependentUpon>AssignToolForm.cs</DependentUpon>
@@ -143,9 +160,34 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="SqlConnectForm.resx">
+      <DependentUpon>SqlConnectForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ToolSelectionForm.resx">
       <DependentUpon>ToolSelectionForm.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="InventoryDataSet.xsc">
+      <DependentUpon>InventoryDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="InventoryDataSet.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>InventoryDataSet.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="InventoryDataSet.xss">
+      <DependentUpon>InventoryDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="InventoryDataSet1.xsc">
+      <DependentUpon>InventoryDataSet1.xsd</DependentUpon>
+    </None>
+    <None Include="InventoryDataSet1.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>InventoryDataSet1.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="InventoryDataSet1.xss">
+      <DependentUpon>InventoryDataSet1.xsd</DependentUpon>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -158,6 +200,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="MainForms\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
